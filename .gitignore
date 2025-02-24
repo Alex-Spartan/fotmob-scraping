@@ -36,4 +36,6 @@ venv.bak/
 
 
 # Local environment
-all_match_stats.xlsx
+*.xlsx
+
+*.json

@@ -2,7 +2,7 @@ import requests
 from openpyxl import Workbook
 
 
-def get_top_stats(codes=[]):
+def get_top_stats(codes=[], common_team=None):
     all_match_data = []
     for code in codes:
         print(f"Fetching data for match ID: {code}")
@@ -35,7 +35,10 @@ def get_top_stats(codes=[]):
                 stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
                 for stat in stats:
                     if stat["title"] in stat_titles:
-                        all_match_data.append([f"{home_team} vs {away_team}", stat["title"], stat["stats"][0], stat["stats"][1]])
+                        if home_team == common_team:
+                            all_match_data.append([f"{home_team} vs {away_team}", stat["title"], stat["stats"][0], stat["stats"][1]])
+                        else:
+                            all_match_data.append([f"{away_team} vs {home_team}", stat["title"], stat["stats"][1], stat["stats"][0]])
                         print(f"{stat['title']} - {stat['stats'][0]} - {stat['stats'][1]}")
         else:
             print(f"Failed to fetch data for match ID: {code}")
@@ -48,5 +51,5 @@ def get_top_stats(codes=[]):
     for row in all_match_data:
         ws.append(row)
     
-    wb.save("all_match_stats.xlsx")
-    print("Saved all match stats to all_match_stats.xlsx")
+    wb.save(f"{common_team}.xlsx")
+    print(f"Saved all match stats to {common_team}.xlsx")
