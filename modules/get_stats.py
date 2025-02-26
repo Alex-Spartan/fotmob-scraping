@@ -5,11 +5,13 @@ def get_stats(codes=[], common_team=None):
     all_match_data = []
     
     for code in codes:
+        if code=="4610809":
+            continue
         print(f"Fetching data for match ID: {code}")
         api_url = f"https://www.fotmob.com/api/matchDetails?matchId={code}"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvdGVhbXM/aWQ9ODUzNSZjY29kZTM9SU5EIiwiY29kZSI6MTc0MDM4MTM4ODg2MCwiZm9vIjoicHJvZHVjdGlvbjo5NjE3ZGNhYWVmOGVlMjRmOWQzZTkwMzdiYjkxOTQ2NDBiMDBmYjY0LXVuZGVmaW5lZCJ9LCJzaWduYXR1cmUiOiJGRUU5RUQ4RjNFOEQwMTg5NTc0NDNCMUM3MEExQTk4MSJ9"
+            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2g/aWQ9NDU2NDEwNyIsImNvZGUiOjE3NDA0OTk1MzExMTQsImZvbyI6InByb2R1Y3Rpb246YzAwODBhOTg1YjM0MDAyMjZlZWViOGU1YjI2NjEwNTUyZjUyMjNhNy11bmRlZmluZWQifSwic2lnbmF0dXJlIjoiOEM4QkU5NzcwOTY1RDgzRkJENTk5QjBFREUwRTk0MDkifQ=="
         }
         response = requests.get(api_url, headers=headers)
 
@@ -26,9 +28,9 @@ def get_stats(codes=[], common_team=None):
             # Define stat categories
             stat_categories = {
                 "Top stats": ("Periods", "All", 0, ["Corners", "Fouls committed", "Shots on target"]),
-                "Pass stats": ("Periods", "All", 3, ["Throws", "Offsides"]),
-                "Defence stats": ("Periods", "All", 4, ["Keeper saves", "Tackles won"]),
-                "Discipline stats": ("Periods", "All", 6, ["Yellow cards", "Red cards"]),
+                "Pass": ("Periods", "All", 3, ["Throws", "Offsides"]),
+                "Defence": ("Periods", "All", 4, ["Keeper saves", "Tackles won"]),
+                "Discipline": ("Periods", "All", 6, ["Yellow cards", "Red cards"]),
             }
 
             if common_team == home_team:
@@ -53,14 +55,16 @@ def get_stats(codes=[], common_team=None):
                 stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
                 for stat in stats:
                     if stat["title"] in stat_titles:
+                        home_stat = stat["stats"][0] if stat["stats"][0] is not None else 0
+                        away_stat = stat["stats"][1] if stat["stats"][1] is not None else 0
                         if common_team == home_team:
-                            match_stats[f"{stat['title']}_Home"] = stat["stats"][0]
-                            match_stats[f"{stat['title']}_Away"] = stat["stats"][1]
-                            print(f"{stat['title']} - {stat['stats'][0]} - {stat['stats'][1]}")
+                            match_stats[f"{stat['title']}_Home"] = home_stat
+                            match_stats[f"{stat['title']}_Away"] = away_stat
+                            print(f"{stat['title']} - {home_stat} - {away_stat}")
                         else:
-                            match_stats[f"{stat['title']}_Home"] = stat["stats"][1]
-                            match_stats[f"{stat['title']}_Away"] = stat["stats"][0]
-                            print(f"{stat['title']} - {stat['stats'][1]} - {stat['stats'][0]}")
+                            match_stats[f"{stat['title']}_Home"] = away_stat
+                            match_stats[f"{stat['title']}_Away"] = home_stat
+                            print(f"{stat['title']} - {away_stat} - {home_stat}")
 
             all_match_data.append(match_stats)
 
