@@ -60,11 +60,9 @@ def get_stats(codes=[], common_team=None):
                         if common_team == home_team:
                             match_stats[f"{stat['title']}_Home"] = home_stat
                             match_stats[f"{stat['title']}_Away"] = away_stat
-                            print(f"{stat['title']} - {home_stat} - {away_stat}")
                         else:
                             match_stats[f"{stat['title']}_Home"] = away_stat
                             match_stats[f"{stat['title']}_Away"] = home_stat
-                            print(f"{stat['title']} - {away_stat} - {home_stat}")
 
             all_match_data.append(match_stats)
 

@@ -1,0 +1,37 @@
+15 matches data
+sequence = 2
+R2 score for random forest: R² Score: -0.5568
+R2 for gradient booster R² Score: -2.0367
+R2 for Xgboost R² Score: -2.2448
+R2 for SVR R² Score: -0.1359
+
+Sequence = 1
+R² Score: -2.2736
+R² Score: -5.1701
+R² Score: -6.3806
+R² Score: -2.3424
+
+Sequence = 3
+R² Score: -3.8208
+R² Score: -6.6058
+R² Score: -6.9900
+R² Score: -3.5638
+
+Sequence = 4
+R² Score: -1.3671
+R² Score: -2.3547
+R² Score: -4.3620
+R² Score: -0.8880
+
+Sequence = 5
+R² Score: -13.9361
+R² Score: -21.9212
+R² Score: -28.6214
+R² Score: -11.3537
+
+20 matches data
+Sequence = 2
+SVR R² Score: -0.9734
+
+
+Sequence = 
