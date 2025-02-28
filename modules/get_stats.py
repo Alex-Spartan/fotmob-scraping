@@ -1,17 +1,14 @@
 import requests
-from openpyxl import Workbook
+import csv
 
 def get_stats(codes=[], common_team=None):
     all_match_data = []
     
     for code in codes:
-        if code=="4610809":
-            continue
-        print(f"Fetching data for match ID: {code}")
         api_url = f"https://www.fotmob.com/api/matchDetails?matchId={code}"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2g/aWQ9NDU2NDEwNyIsImNvZGUiOjE3NDA0OTk1MzExMTQsImZvbyI6InByb2R1Y3Rpb246YzAwODBhOTg1YjM0MDAyMjZlZWViOGU1YjI2NjEwNTUyZjUyMjNhNy11bmRlZmluZWQifSwic2lnbmF0dXJlIjoiOEM4QkU5NzcwOTY1RDgzRkJENTk5QjBFREUwRTk0MDkifQ=="
+            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvdGVhbXM/aWQ9ODU3NyZjY29kZTM9SU5EIiwiY29kZSI6MTc0MDU4NzM5MDk0NiwiZm9vIjoicHJvZHVjdGlvbjpkNTY4ZjBmZmY5ZDU2NGYwZWZlMjg0NmQ5NjlmZmQ5ODUyYjIwYzc4LXVuZGVmaW5lZCJ9LCJzaWduYXR1cmUiOiI0QjAwNDBBMDM3RDA2RUFEMzUzRDU3QjIxQjVBOTNFMyJ9"
         }
         response = requests.get(api_url, headers=headers)
 
@@ -52,36 +49,38 @@ def get_stats(codes=[], common_team=None):
             
             # Fetch stats and structure in tabular format
             for category, (period_key, all_key, index, stat_titles) in stat_categories.items():
+                if period_key in data["content"]["stats"] and all_key in data["content"]["stats"][period_key] and index < len(data["content"]["stats"][period_key][all_key]["stats"]):
+                    stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
+                else:
+                    index = len(data["content"]["stats"][period_key][all_key]["stats"]) - 1
                 stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
-                for stat in stats:
-                    if stat["title"] in stat_titles:
-                        home_stat = stat["stats"][0] if stat["stats"][0] is not None else 0
-                        away_stat = stat["stats"][1] if stat["stats"][1] is not None else 0
-                        if common_team == home_team:
-                            match_stats[f"{stat['title']}_Home"] = home_stat
-                            match_stats[f"{stat['title']}_Away"] = away_stat
-                        else:
-                            match_stats[f"{stat['title']}_Home"] = away_stat
-                            match_stats[f"{stat['title']}_Away"] = home_stat
+                if stats:
+                    for stat in stats:
+                        if stat["title"] in stat_titles:
+                            home_stat = stat["stats"][0] if stat["stats"][0] is not None else 0
+                            away_stat = stat["stats"][1] if stat["stats"][1] is not None else 0
+                            if common_team == home_team:
+                                match_stats[f"{stat['title']}_Home"] = home_stat
+                                match_stats[f"{stat['title']}_Away"] = away_stat
+                            else:
+                                match_stats[f"{stat['title']}_Home"] = away_stat
+                                match_stats[f"{stat['title']}_Away"] = home_stat
+                else:
+                    print(f"{category} doesn't exists")
 
             all_match_data.append(match_stats)
 
+            print(f"Fetched data for match ID: {code}")
         else:
             print(f"Failed to fetch data for match ID: {code}")
+
+    print(all_match_data)
     
-    # Create Excel file
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Match Stats"
-    
-    # Set Column Headers
-    if all_match_data:
-        headers = list(all_match_data[0].keys())
-        ws.append(headers)
-    
-        # Append Match Data
+    csv_file = f"{common_team}.csv"
+    with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=all_match_data[0].keys())
+        writer.writeheader()
         for match in all_match_data:
-            ws.append([match[h] for h in headers])
+            writer.writerow(match)
     
-    wb.save(f"{common_team}.xlsx")
-    print(f"Saved all match stats to {common_team}.xlsx")
+    print(f"Saved all match stats to {csv_file}")

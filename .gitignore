@@ -35,7 +35,10 @@ venv.bak/
 /site
 
 
+*.txt
 # Local environment
 *.xlsx
+*.csv
 
 *.json
+*.js

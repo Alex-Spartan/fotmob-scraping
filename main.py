@@ -6,22 +6,19 @@ from sklearn.svm import SVR
 from sklearn.metrics import r2_score
 from modules import scrape as sc
 
-# sc.scrapeData("https://www.fotmob.com/en-GB/teams/8455/fixtures/chelsea?before=4506624")
-
+sc.scrapeData("https://www.fotmob.com/en-GB/teams/8633/fixtures/real-madrid?before=4506988")
+exit()
 # Read the Excel file
-df = pd.read_excel("chelsea.xlsx")
+df = pd.read_excel("real-madrid.xlsx")
+df.to_csv("real-madrid.csv", index=False)
 
-print(f"Shape of DataFrame: {df.shape}")
 
 # Select relevant numeric columns
-stats_columns = [col for col in df.columns if "Home" in col or "Away" in col]
+stats_columns = [col for col in df.columns if ("Home" in col or "Away" in col) and col not in ["Home Team", "Away Team"]]
 df = df[stats_columns]
 
 # Convert stats to numeric, handling errors
 df = df.apply(pd.to_numeric, errors="coerce").fillna(0)
-
-print(f"Shape of DataFrame after processing: {df.shape}")
-
 # Prepare data for ML
 sequence_length = 1  # Number of past matches to consider
 
@@ -68,7 +65,12 @@ if len(df) > sequence_length:
     next_match_input = scaler.transform(next_match_input)
 
     predicted_stats = np.column_stack([model.predict(next_match_input) for model in models])
-    print("Predicted next match stats:", predicted_stats)
+    predicted_df = pd.DataFrame(predicted_stats, columns=df.columns)
+
+    # Display predicted statistics with their names
+    print("Predicted next match stats:")
+    for col in predicted_df.columns:
+        print(f"{col}: {predicted_df[col].values[0]:.2f}")
 
 else:
     print(f"Not enough data to create sequences of length {sequence_length}")

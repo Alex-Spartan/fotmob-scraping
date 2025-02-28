@@ -19,7 +19,7 @@ def scrapeData(url1):
         div = soup.find('div', class_='css-1mvr87o-FixturesCardCSS ep1hw9x0')  # Replace 'specific-class-name' with the actual class name
         if div:
             codes = [a['href'].split('#')[-1] for a in div.find_all('a', href=True) if '#' in a['href']]
-            return codes[-20:]
+            return codes[-7:]
         else:
             print("Div2 not found")
             return []
@@ -30,4 +30,6 @@ def scrapeData(url1):
     driver.quit()
 
     team = url1.split('/')[-1].split('?')[0].capitalize()
+    if team.split('-')[1]:
+        team = team.replace('-', ' ').title()
     gs.get_stats(codes, team)
