@@ -7,29 +7,37 @@ def scrapeData(url1):
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
-
+    team = None
 
     def extract_codes_from_second_link(url):
+        nonlocal team  # Use the team variable from the enclosing scope
         driver.get(url)
         time.sleep(4)
 
         soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+        span = soup.find('span', class_='css-2irgse-TextOnDesktop e1i7jfg81')
+        if span:
+            team = span.text
+        else:
+            print("Span not found")
         
         # Scrape all a tags from the div with a specific class
-        div = soup.find('div', class_='css-1mvr87o-FixturesCardCSS ep1hw9x0')  # Replace 'specific-class-name' with the actual class name
+        div = soup.find('div', class_='css-1mvr87o-FixturesCardCSS ep1hw9x0')
         if div:
             codes = [a['href'].split('#')[-1] for a in div.find_all('a', href=True) if '#' in a['href']]
-            return codes[-7:]
+            return codes
         else:
             print("Div2 not found")
             return []
 
     codes = extract_codes_from_second_link(url1)
 
-
     driver.quit()
 
-    team = url1.split('/')[-1].split('?')[0].capitalize()
-    if team.split('-')[1]:
-        team = team.replace('-', ' ').title()
+    if team:
+        print(team)
+    else:
+        print("Team name not found")
+
     gs.get_stats(codes, team)

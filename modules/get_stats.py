@@ -1,5 +1,6 @@
 import requests
 import csv
+import pandas as pd
 
 def get_stats(codes=[], common_team=None):
     all_match_data = []
@@ -8,7 +9,7 @@ def get_stats(codes=[], common_team=None):
         api_url = f"https://www.fotmob.com/api/matchDetails?matchId={code}"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvdGVhbXM/aWQ9ODU3NyZjY29kZTM9SU5EIiwiY29kZSI6MTc0MDU4NzM5MDk0NiwiZm9vIjoicHJvZHVjdGlvbjpkNTY4ZjBmZmY5ZDU2NGYwZWZlMjg0NmQ5NjlmZmQ5ODUyYjIwYzc4LXVuZGVmaW5lZCJ9LCJzaWduYXR1cmUiOiI0QjAwNDBBMDM3RDA2RUFEMzUzRDU3QjIxQjVBOTNFMyJ9"
+            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2g/aWQ9NDUzNDc0NyIsImNvZGUiOjE3NDA3MjI0NDUzNzIsImZvbyI6InByb2R1Y3Rpb246OTU5OWMyYzVmNjJjMGU0NmVkNzFkNDIyYWFhM2NjOWY4ZmYyYWVkNC11bmRlZmluZWQifSwic2lnbmF0dXJlIjoiNEVFMUREMzAzQjYzRDRGRTk5RTlGNkFFQjUyQzM1RDYifQ=="
         }
         response = requests.get(api_url, headers=headers)
 
@@ -51,8 +52,6 @@ def get_stats(codes=[], common_team=None):
             for category, (period_key, all_key, index, stat_titles) in stat_categories.items():
                 if period_key in data["content"]["stats"] and all_key in data["content"]["stats"][period_key] and index < len(data["content"]["stats"][period_key][all_key]["stats"]):
                     stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
-                else:
-                    index = len(data["content"]["stats"][period_key][all_key]["stats"]) - 1
                 stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
                 if stats:
                     for stat in stats:
@@ -74,13 +73,9 @@ def get_stats(codes=[], common_team=None):
         else:
             print(f"Failed to fetch data for match ID: {code}")
 
-    print(all_match_data)
     
-    csv_file = f"{common_team}.csv"
-    with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.DictWriter(file, fieldnames=all_match_data[0].keys())
-        writer.writeheader()
-        for match in all_match_data:
-            writer.writerow(match)
-    
-    print(f"Saved all match stats to {csv_file}")
+    df = pd.DataFrame(all_match_data)
+    excel_file = f"{common_team}.xlsx"
+    df.to_excel(excel_file, index=False)
+
+    print(f"Saved all match stats to {excel_file}")
