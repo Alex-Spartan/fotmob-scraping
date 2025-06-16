@@ -50,14 +50,15 @@ if len(df) > sequence_length:
     mae = mean_absolute_error(y_test, y_pred)
     mse = mean_squared_error(y_test, y_pred)
     print(f"R² Score: {r2:.4f}")
-    print(f"Mean Absolute Error (MAE): {mae:.4f}")
-    print(f"Mean Squared Error (MSE): {mse:.4f}")
+    for i, col in enumerate(df.columns):
+        print(f"{col} R²: {r2_score(y_test[:, i], y_pred[:, i]):.4f}")
 
     next_match_input = df.iloc[-sequence_length:].values.flatten().reshape(1, -1)
     next_match_input = scaler.transform(next_match_input)
 
     predicted_stats = np.column_stack([model.predict(next_match_input) for model in models])
     predicted_df = pd.DataFrame(predicted_stats, columns=df.columns)
+
 
     print("Predicted next match stats:")
     for col in predicted_df.columns:
