@@ -9,7 +9,8 @@ def get_stats(codes=[], common_team=None):
         api_url = f"https://www.fotmob.com/api/matchDetails?matchId={code}"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2g/aWQ9NDUzNDc0NyIsImNvZGUiOjE3NDA3MjI0NDUzNzIsImZvbyI6InByb2R1Y3Rpb246OTU5OWMyYzVmNjJjMGU0NmVkNzFkNDIyYWFhM2NjOWY4ZmYyYWVkNC11bmRlZmluZWQifSwic2lnbmF0dXJlIjoiNEVFMUREMzAzQjYzRDRGRTk5RTlGNkFFQjUyQzM1RDYifQ=="
+            #replace with your actual X-Mas value
+            "X-Mas": "eyJib2R5Ijp7InVybCI6Ii9hcGkvbWF0Y2g/aWQ9NDY4OTM1MSIsImNvZGUiOjE3NDk4ODQ1NzQ4NzgsImZvbyI6InByb2R1Y3Rpb246ODYwZmI3MTdkNThmYzQ5MDI5ZDkwYmUxN2JlMzAzZWU5MGM1YTc4Yi11bmRlZmluZWQifSwic2lnbmF0dXJlIjoiMDc2REQ1QUNGRDY1N0I1RDA5MkMxQzYxODkwRDZFNUMifQ=="
         }
         response = requests.get(api_url, headers=headers)
 
@@ -49,33 +50,37 @@ def get_stats(codes=[], common_team=None):
                 }
             
             # Fetch stats and structure in tabular format
-            for category, (period_key, all_key, index, stat_titles) in stat_categories.items():
-                if period_key in data["content"]["stats"] and all_key in data["content"]["stats"][period_key] and index < len(data["content"]["stats"][period_key][all_key]["stats"]):
-                    stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
-                stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
-                if stats:
-                    for stat in stats:
-                        if stat["title"] in stat_titles:
-                            home_stat = stat["stats"][0] if stat["stats"][0] is not None else 0
-                            away_stat = stat["stats"][1] if stat["stats"][1] is not None else 0
-                            if common_team == home_team:
-                                match_stats[f"{stat['title']}_Home"] = home_stat
-                                match_stats[f"{stat['title']}_Away"] = away_stat
-                            else:
-                                match_stats[f"{stat['title']}_Home"] = away_stat
-                                match_stats[f"{stat['title']}_Away"] = home_stat
-                else:
-                    print(f"{category} doesn't exists")
+            try:
+                for category, (period_key, all_key, index, stat_titles) in stat_categories.items():
+                    if period_key in data["content"]["stats"] and all_key in data["content"]["stats"][period_key] and index < len(data["content"]["stats"][period_key][all_key]["stats"]):
+                        stats = data["content"]["stats"][period_key][all_key]["stats"][index]["stats"]
+                        if stats:
+                            for stat in stats:
+                                if stat["title"] in stat_titles:
+                                    home_stat = stat["stats"][0] if stat["stats"][0] is not None else 0
+                                    away_stat = stat["stats"][1] if stat["stats"][1] is not None else 0
+                                    if common_team == home_team:
+                                        match_stats[f"{stat['title']}_Home"] = home_stat
+                                        match_stats[f"{stat['title']}_Away"] = away_stat
+                                    else:
+                                        match_stats[f"{stat['title']}_Home"] = away_stat
+                                        match_stats[f"{stat['title']}_Away"] = home_stat
+                        else:
+                            print(f"{category} doesn't exist")
+                    else:
+                        print(f"Invalid key for {category}")
+            except TypeError as e:
+                print(f"Skipping match ID {code} due to error: {e}")
+                continue
 
             all_match_data.append(match_stats)
 
             print(f"Fetched data for match ID: {code}")
         else:
             print(f"Failed to fetch data for match ID: {code}")
-
     
     df = pd.DataFrame(all_match_data)
-    excel_file = f"{common_team}.xlsx"
-    df.to_excel(excel_file, index=False)
+    csv_file = f"{common_team}.csv"
+    df.to_csv(csv_file, index=False)
 
-    print(f"Saved all match stats to {excel_file}")
+    print(f"Saved all match stats to {csv_file}")

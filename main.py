@@ -6,16 +6,14 @@ from sklearn.svm import SVR
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 from modules import scrape as sc
 
-# sc.scrapeData("https://www.fotmob.com/en-GB/teams/8535/fixtures/fiorentina?before=4535434")
-df = pd.read_excel("Fiorentina.xlsx")
-df.to_csv("Fiorentina.csv", index=False)
-
+# sc.scrapeData("https://www.fotmob.com/en-GB/teams/8361/fixtures/portugal?before=4679446")
+df = pd.read_csv("Portugal.csv")
 
 stats_columns = [col for col in df.columns if ("Home" in col or "Away" in col) and col not in ["Home Team", "Away Team"]]
 df = df[stats_columns]
 
 df = df.apply(pd.to_numeric, errors="coerce").fillna(0)
-sequence_length = 1
+sequence_length = 5
 
 X, y = [], []
 
@@ -54,7 +52,6 @@ if len(df) > sequence_length:
     print(f"R² Score: {r2:.4f}")
     print(f"Mean Absolute Error (MAE): {mae:.4f}")
     print(f"Mean Squared Error (MSE): {mse:.4f}")
-    exit()
 
     next_match_input = df.iloc[-sequence_length:].values.flatten().reshape(1, -1)
     next_match_input = scaler.transform(next_match_input)

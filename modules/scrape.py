@@ -22,8 +22,8 @@ def scrapeData(url1):
         else:
             print("Span not found")
         
-        # Scrape all a tags from the div with a specific class
-        div = soup.find('div', class_='css-1mvr87o-FixturesCardCSS ep1hw9x0')
+        # Replace div class with the correct one
+        div = soup.find('div', class_='css-1mvr87o-FixturesCardCSS e16yw8af0')
         if div:
             codes = [a['href'].split('#')[-1] for a in div.find_all('a', href=True) if '#' in a['href']]
             return codes
@@ -34,10 +34,5 @@ def scrapeData(url1):
     codes = extract_codes_from_second_link(url1)
 
     driver.quit()
-
-    if team:
-        print(team)
-    else:
-        print("Team name not found")
 
     gs.get_stats(codes, team)
